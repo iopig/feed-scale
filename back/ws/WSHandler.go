@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/iopig/feed-scale/common"
+	"github.com/iopig/feed-scale/back/common"
 )
 
 // 每隔1秒, 检查一次连接是否健康
@@ -91,14 +91,14 @@ func (wsConnection *WSConnection) WSHandle() {
 			if bizResp, err = wsConnection.handlePing(bizReq); err != nil {
 				goto ERR
 			}
-		case "JOIN":
-			if bizResp, err = wsConnection.handleJoin(bizReq); err != nil {
-				goto ERR
-			}
-		case "LEAVE":
-			if bizResp, err = wsConnection.handleLeave(bizReq); err != nil {
-				goto ERR
-			}
+			// case "JOIN":
+			// 	if bizResp, err = wsConnection.handleJoin(bizReq); err != nil {
+			// 		goto ERR
+			// 	}
+			// case "LEAVE":
+			// 	if bizResp, err = wsConnection.handleLeave(bizReq); err != nil {
+			// 		goto ERR
+			// 	}
 		}
 
 		if bizResp != nil {
@@ -106,7 +106,10 @@ func (wsConnection *WSConnection) WSHandle() {
 				goto ERR
 			}
 			// socket缓冲区写满不是致命错误
-			if err = wsConnection.SendMessage(&common.WSMessage{websocket.TextMessage, buf}); err != nil {
+			if err = wsConnection.SendMessage(&common.WSMessage{
+				MsgType: websocket.TextMessage,
+				MsgData: buf,
+			}); err != nil {
 				if err != common.ERR_SEND_MESSAGE_FULL {
 					goto ERR
 				} else {

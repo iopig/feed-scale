@@ -1,17 +1,19 @@
 package gateway
 
 import (
-	"net/http"
-	"time"
 	"net"
+	"net/http"
 	"strconv"
-	"github.com/gorilla/websocket"
 	"sync/atomic"
+	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/iopig/feed-scale/back/common"
 )
 
 // 	WebSocket服务端
 type WSServer struct {
-	server *http.Server
+	server    *http.Server
 	curConnId uint64
 }
 
@@ -28,10 +30,10 @@ var (
 
 func handleConnect(resp http.ResponseWriter, req *http.Request) {
 	var (
-		err error
+		err      error
 		wsSocket *websocket.Conn
-		connId uint64
-		wsConn *WSConnection
+		connId   uint64
+		wsConn   *WSConnection
 	)
 
 	// WebSocket握手
@@ -51,8 +53,8 @@ func handleConnect(resp http.ResponseWriter, req *http.Request) {
 
 func InitWSServer() (err error) {
 	var (
-		mux *http.ServeMux
-		server *http.Server
+		mux      *http.ServeMux
+		server   *http.Server
 		listener net.Listener
 	)
 
@@ -62,19 +64,19 @@ func InitWSServer() (err error) {
 
 	// HTTP服务
 	server = &http.Server{
-		ReadTimeout: time.Duration(G_config.WsReadTimeout) * time.Millisecond,
-		WriteTimeout: time.Duration(G_config.WsWriteTimeout) * time.Millisecond,
-		Handler: mux,
+		ReadTimeout:  time.Duration(common.G_config.WsReadTimeout) * time.Millisecond,
+		WriteTimeout: time.Duration(common.G_config.WsWriteTimeout) * time.Millisecond,
+		Handler:      mux,
 	}
 
 	// 监听端口
-	if listener, err = net.Listen("tcp", ":" + strconv.Itoa(G_config.WsPort)); err != nil {
+	if listener, err = net.Listen("tcp", ":"+strconv.Itoa(common.G_config.WsPort)); err != nil {
 		return
 	}
 
 	// 赋值全局变量
 	G_wsServer = &WSServer{
-		server: server,
+		server:    server,
 		curConnId: uint64(time.Now().Unix()),
 	}
 

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/iopig/feed-scale/common"
+	"github.com/iopig/feed-scale/back/common"
 )
 
 type WSConnection struct {
