@@ -34,10 +34,10 @@ message PigstyInfo{
     //猪圈ID
     string PigstyId = 1;
     //猪数量
-    string PigNum = 2;
-    //猪平均重量
-    string AverageWeight = 3;
-    //推荐值
+    uint32 PigNum = 2;
+    //猪平均重量,单位为“克”
+    uint32 AverageWeight = 3;
+    //喂料推荐值，单位为
     uint32 AdviseWeight = 4;
     //上次喂料时间戳 unix_timestamp
     uint32 LastFed = 5;

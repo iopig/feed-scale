@@ -19,6 +19,7 @@ protoc --proto_path=%proPath% --proto_path=%batPath% --grpc-java_out=%batPath% g
 protoc --proto_path=%proPath% --proto_path=%batPath% --grpc-java_out=%batPath% fs_gw.proto
 protoc --plugin=protoc-gen-grpc-java=%javagen% --grpc-java_out="./" global_def.proto
 protoc --plugin=protoc-gen-grpc-java=%javagen% --grpc-java_out="./" fs_gw.proto
+
 cd %outPath%
 
 

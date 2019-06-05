@@ -8,7 +8,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/iopig/feed-scale/back/svr"
+	"github.com/iopig/feed-scale/back/common"
+	fssvr "github.com/iopig/feed-scale/back/svr"
 	"github.com/iopig/feed-scale/interface/grpc/go_out/fsapi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -51,7 +52,13 @@ func main() {
 
 	grpcServer = grpc.NewServer()
 
-	fsapi.RegisterFsPadServer(grpcServer, &svr.SvrApi{})
+	fsapi.RegisterFsPadServer(grpcServer, &fssvr.SvrApi{})
+
+	common.MysqlInit(common.MysqlConfig{
+		ConnectStr:   "root:0pl,9okm@tcp(192.168.100.102:3306)/fodder?charset=utf8",
+		MaxOpenConns: 2000,
+		MaxIdleConns: 2000,
+	})
 
 	reflection.Register(grpcServer)
 	if err := grpcServer.Serve(lis); err != nil {

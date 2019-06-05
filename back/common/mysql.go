@@ -25,7 +25,7 @@ var (
 // function should be called just once. It is rarely necessary to
 // close a DB.
 // Your routine must first initialize the log
-func Init(mysqlconf MysqlConfig) (err error) {
+func MysqlInit(mysqlconf MysqlConfig) (err error) {
 
 	//TODO optimzation log
 
