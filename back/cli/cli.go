@@ -10,7 +10,7 @@ import (
 
 func PadLogin() (err error) {
 
-	cli, err := grpc.Dial("127.0.0.1:50051", grpc.WithInsecure())
+	cli, err := grpc.Dial("117.139.13.149:50051", grpc.WithInsecure())
 
 	if err != nil {
 		fmt.Println(err.Error())

@@ -9,8 +9,8 @@ syntax = "proto3";
 package fsapi;
 option go_package = "github.com/iopig/feed-scale/interface/grpc/go_out/fsapi";
 option java_package = "cn.iopig.feed.scale.grpc";
-import "github.com/iopig/feed-scale/interface/grpc/proto/global_def.proto";
-
+import "./global_def.proto";
+//本接口中，重量采用“克”为单位
 // The greeting service definition.
 // interface between feed scale and pad  
 service FsPad {
@@ -93,8 +93,12 @@ message ChoosePigstyReq {
     fsapi.ReqHeader ReqHeader  = 1;
     //当前猪圈
     string PigstyId = 2;
-    //当前重量
+    //当前重量，重量采用“克”为单位
     string CurrentWeight = 3;
+    //饲料id
+    //string FodderId = 4; version1.1
+    //推荐的重量
+    //string AdviseWeight = 5; version1.1
 }
 
 
@@ -104,7 +108,7 @@ message CurrentFedRes {
     fsapi.ResHeader ResHeader  = 1;
     //当前猪圈
     string PigstyId = 2;
-    //已经喂料重量
+    //已经喂料重量，重量采用“克”为单位
     string FedWeight = 3;
     //
 }

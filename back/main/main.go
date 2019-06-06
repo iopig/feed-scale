@@ -37,6 +37,7 @@ func main() {
 	var (
 		//	err error
 		grpcServer *grpc.Server
+		svrApi     fssvr.SvrApi
 	)
 
 	// 初始化环境
@@ -52,7 +53,8 @@ func main() {
 
 	grpcServer = grpc.NewServer()
 
-	fsapi.RegisterFsPadServer(grpcServer, &fssvr.SvrApi{})
+	svrApi.Init()
+	fsapi.RegisterFsPadServer(grpcServer, &svrApi)
 
 	common.MysqlInit(common.MysqlConfig{
 		ConnectStr:   "root:0pl,9okm@tcp(192.168.100.102:3306)/fodder?charset=utf8",

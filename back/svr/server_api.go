@@ -2,6 +2,7 @@ package fssvr
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/iopig/feed-scale/interface/grpc/go_out/fsapi"
@@ -9,6 +10,12 @@ import (
 )
 
 type SvrApi struct {
+	//TODO redis for every device id
+	ScaleProcessMap map[int]*ScaleProcess
+}
+
+func (c *SvrApi) Init() {
+	c.ScaleProcessMap = make(map[int]*ScaleProcess)
 }
 
 func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.PigstyInfoRes, error) {
@@ -50,11 +57,50 @@ func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.Pig
 	return &pistyInfoRes, err
 }
 func (c *SvrApi) LoadCmd(ctx context.Context, in *fsapi.LoadReq) (*fsapi.ResHeader, error) {
-	return nil, nil
+
+	var ResHeader fsapi.ResHeader
+	Devid, err := strconv.Atoi(in.ReqHeader.DevId)
+	if c.ScaleProcessMap[Devid] == nil {
+		c.ScaleProcessMap[Devid] = &ScaleProcess{
+			CurrentWeight: 0,
+			PigstyId:      0,
+			FedWeight:     0,
+			DevId:         Devid,
+		}
+	}
+	c.ScaleProcessMap[Devid].LoadCmd(in, &ResHeader)
+	//当前重量
+	return &ResHeader, err
 }
 func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.ChoosePigstyReq) (*fsapi.CurrentFedRes, error) {
-	return nil, nil
+	var CurrentFedRes fsapi.CurrentFedRes
+
+	Devid, err := strconv.Atoi(in.ReqHeader.DevId)
+	if c.ScaleProcessMap[Devid] == nil {
+		c.ScaleProcessMap[Devid] = &ScaleProcess{
+			CurrentWeight: 0,
+			PigstyId:      0,
+			FedWeight:     0,
+			DevId:         Devid,
+		}
+	}
+	c.ScaleProcessMap[Devid].ChoosePigsty(in, &CurrentFedRes)
+
+	return &CurrentFedRes, err
 }
 func (c *SvrApi) UploadRawInfo(ctx context.Context, in *fsapi.ChoosePigstyReq) (*fsapi.CurrentFedRes, error) {
-	return nil, nil
+	var CurrentFedRes fsapi.CurrentFedRes
+
+	Devid, err := strconv.Atoi(in.ReqHeader.DevId)
+	if c.ScaleProcessMap[Devid] == nil {
+		c.ScaleProcessMap[Devid] = &ScaleProcess{
+			CurrentWeight: 0,
+			PigstyId:      0,
+			FedWeight:     0,
+			DevId:         Devid,
+		}
+	}
+	c.ScaleProcessMap[Devid].UploadRawInfo(in, &CurrentFedRes)
+
+	return &CurrentFedRes, err
 }

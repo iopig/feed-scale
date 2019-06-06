@@ -13,7 +13,7 @@ enum ErrCode {
     ERR_SUCCESS               =0;       //0 成功
     ERR_FAILED                =1;       //1 失败
     ERR_DEVID_NOT_EXIST       =2;       //2 地址已经存在
-    ERR_CONN_TO_DA_NOT_READY  =3;       //3 连接没有准备好
+    ERR_CONN_TO_DA_NOT_READY  =3;       //3 连接没有准备好    
 
 }
 
