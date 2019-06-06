@@ -63,7 +63,6 @@ func (c *SvrApi) LoadCmd(ctx context.Context, in *fsapi.LoadReq) (*fsapi.ResHead
 	if c.ScaleProcessMap[Devid] == nil {
 		c.ScaleProcessMap[Devid] = &ScaleProcess{
 			CurrentWeight: 0,
-			PigstyId:      0,
 			FedWeight:     0,
 			DevId:         Devid,
 		}
@@ -79,7 +78,6 @@ func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.ChoosePigstyReq) (*
 	if c.ScaleProcessMap[Devid] == nil {
 		c.ScaleProcessMap[Devid] = &ScaleProcess{
 			CurrentWeight: 0,
-			PigstyId:      0,
 			FedWeight:     0,
 			DevId:         Devid,
 		}
@@ -95,7 +93,6 @@ func (c *SvrApi) UploadRawInfo(ctx context.Context, in *fsapi.ChoosePigstyReq) (
 	if c.ScaleProcessMap[Devid] == nil {
 		c.ScaleProcessMap[Devid] = &ScaleProcess{
 			CurrentWeight: 0,
-			PigstyId:      0,
 			FedWeight:     0,
 			DevId:         Devid,
 		}

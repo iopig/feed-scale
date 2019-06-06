@@ -28,6 +28,7 @@ func getUnitSlice() []unitOfWeight {
 //重量转换为以克为单位的,只能转换常规表示方式如 10kg，10.11 kg，1g，1.1g等
 //TODO test
 func WeightToNumber(weightStr string) (int, error) {
+	var zeroStr = "0000000000"
 	if weightStr == "" {
 		//重量为“”时，表示为0克
 		return 0, nil
@@ -39,24 +40,38 @@ func WeightToNumber(weightStr string) (int, error) {
 		}
 
 		UnitSlice := getUnitSlice()
+		var unitStr string
+		var intweight int
+
+		if len(weightStrEx) != 2 {
+			//content := weightStr[1:len(weightStr)]
+			//return strconv.Atoi(content)
+			unitStr = weightStr
+		} else {
+			unitStr = weightStrEx[1]
+			intweight, _ = strconv.Atoi(weightStrEx[0])
+		}
+
 		for _, v := range UnitSlice {
-			var unitStr string
-			if len(weightStrEx) != 2 {
-				//content := weightStr[1:len(weightStr)]
-				//return strconv.Atoi(content)
-				unitStr = weightStr
-			} else {
-				unitStr = weightStrEx[1]
-			}
 
 			if strings.Contains(unitStr, v.unitstr) {
-				intweight, err := strconv.Atoi(weightStrEx[0])
+
+				if len(weightStrEx) != 2 {
+					intweightFirstStr := weightStr[0 : len(weightStr)-len(v.unitstr)]
+					intweight, _ = strconv.Atoi(intweightFirstStr)
+				}
+				//intweight, err := strconv.Atoi(weightStrEx[0])
 				intweight = intweight * v.firstMul
 				if len(weightStrEx) != 2 {
-					return intweight, err
+					return intweight, nil
 				}
-				intweightSecStr := weightStrEx[1][len(v.unitstr):len(weightStr)]
-				intweightSecStr = intweightSecStr[len(v.unitstr):v.secondSize]
+				intweightSecStr := weightStrEx[1][0 : len(weightStrEx[1])-len(v.unitstr)]
+				if v.secondSize <= len(intweightSecStr) {
+					intweightSecStr = intweightSecStr[0:v.secondSize]
+				} else {
+					intweightSecStr = intweightSecStr + zeroStr[0:v.secondSize-len(intweightSecStr)]
+				}
+
 				intweightSecond, err := strconv.Atoi(intweightSecStr)
 				intweight = intweight + intweightSecond
 				return intweight, err

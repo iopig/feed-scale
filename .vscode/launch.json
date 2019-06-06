@@ -16,6 +16,19 @@
             "env": {},
             "args": [],
             "showLog": true
+        },
+        {
+            "name": "test",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "remotePath": "",
+            "port": "",
+            "host": "",
+            "program": "${file}",
+            "env": {},
+            "args": [],
+            "showLog": true
         }
     ]
 }
