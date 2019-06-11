@@ -18,6 +18,7 @@ func (c *SvrApi) Init() {
 	c.ScaleProcessMap = make(map[int]*ScaleProcess)
 }
 
+//pad登录
 func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.PigstyInfoRes, error) {
 
 	var famers Farmers
@@ -56,6 +57,8 @@ func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.Pig
 
 	return &pistyInfoRes, err
 }
+
+//上料
 func (c *SvrApi) LoadCmd(ctx context.Context, in *fsapi.LoadReq) (*fsapi.ResHeader, error) {
 
 	var ResHeader fsapi.ResHeader
@@ -71,6 +74,8 @@ func (c *SvrApi) LoadCmd(ctx context.Context, in *fsapi.LoadReq) (*fsapi.ResHead
 	//当前重量
 	return &ResHeader, err
 }
+
+//选择猪圈
 func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.ChoosePigstyReq) (*fsapi.CurrentFedRes, error) {
 	var CurrentFedRes fsapi.CurrentFedRes
 
@@ -86,6 +91,8 @@ func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.ChoosePigstyReq) (*
 
 	return &CurrentFedRes, err
 }
+
+//上传饲料称的原始信息
 func (c *SvrApi) UploadRawInfo(ctx context.Context, in *fsapi.ChoosePigstyReq) (*fsapi.CurrentFedRes, error) {
 	var CurrentFedRes fsapi.CurrentFedRes
 

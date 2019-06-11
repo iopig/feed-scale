@@ -76,20 +76,14 @@ func (sp *ScaleProcess) LoadCmd(in *fsapi.LoadReq, resHeader *fsapi.ResHeader) (
 	return
 }
 
-func (sp *ScaleProcess) ChoosePigsty(in *fsapi.ChoosePigstyReq, fedres *fsapi.CurrentFedRes) (err error) {
+func (sp *ScaleProcess) chooseStyLog(in *fsapi.ChoosePigstyReq, fedres *fsapi.CurrentFedRes) (err error) {
 
-	//TODO 增加合法性校验，设备是否合法，是否已经开始了一次的喂料过程，距离上次喂料时间有多长。
-	//当前重量是否合理，时间是否合理。
-	resHeader := fedres.ResHeader
-	resHeader.ErrCode = fsapi.ErrCode_ERR_SUCCESS
-	resHeader.ErrMsg = ""
 	stm, err := common.MysqlDbHandle.Prepare(
 		"insert  into feed_log(sty_id,fodder_id,advise_value,device_id,  current_weight,feed_weight,feed_time,cmd_type) " +
 			"values(?,?,?,?,  ?,?,from_unixtime(?),?)")
 	if err != nil {
 		fmt.Println(err)
-		resHeader.ErrCode = fsapi.ErrCode_ERR_SUCCESS
-		resHeader.ErrMsg = "operate db prepare error!"
+		fmt.Println("operate db prepare error!")
 		return
 	}
 	defer stm.Close()
@@ -100,19 +94,34 @@ func (sp *ScaleProcess) ChoosePigsty(in *fsapi.ChoosePigstyReq, fedres *fsapi.Cu
 		CurrentWeight, 0, in.ReqHeader.Ts, FEED_CMD_TYPE_CHOOSE_PIGSTY)
 	if err != nil {
 		fmt.Println(err)
-		resHeader.ErrCode = fsapi.ErrCode_ERR_SUCCESS
-		resHeader.ErrMsg = "operate db exe error!"
+		fmt.Println("operate db exe error!")
 		return
 	}
 	_, err = res.LastInsertId()
 	if err != nil {
 		fmt.Println("insert LastInsertId:", err)
-		resHeader.ErrCode = fsapi.ErrCode_ERR_SUCCESS
-		resHeader.ErrMsg = "operate db not insert error!"
+		fmt.Println("operate db not insert error!")
 		return
 	}
+
+	return
+}
+
+//calcScaleData 函数完成以下计算：
+//1.计算推荐重量，从数据库中提取数据。
+//TODO 2.没有去皮时，计算饲料盆里还剩余多少重量
+//3.计算已经喂的重量，以及计算还需要喂多少重量的饲料。
+func (sp *ScaleProcess) calcScaleData(in *fsapi.ChoosePigstyReq, fedres *fsapi.CurrentFedRes) (err error) {
+
+	//TODO 当前重量是否合理，时间是否合理。
+
+	//计算重量
+
 	PigstyId, err := strconv.Atoi(in.PigstyId)
-	//计算
+	CurrentWeight, err := common.WeightToNumber(in.CurrentWeight)
+	difference := sp.CurrentWeight - CurrentWeight
+
+	//查找猪圈信息
 	if sp.PigstyData[PigstyId] == nil {
 		sp.PigstyData[PigstyId] = &pistyLog{
 			PigstyId:       PigstyId,
@@ -122,8 +131,13 @@ func (sp *ScaleProcess) ChoosePigsty(in *fsapi.ChoosePigstyReq, fedres *fsapi.Cu
 			StartTime:      int(time.Now().Unix()),
 		}
 	}
+
+	// 如果只是猪圈选择
+	if difference == 0 {
+		return
+	}
 	sp.PigstyData[PigstyId].LastTime = int(time.Now().Unix())
-	sp.FedWeight = sp.PigstyData[PigstyId].StyfirstWeight - 
+	sp.FedWeight = sp.PigstyData[PigstyId].StyfirstWeight
 	fedres.FedWeight = strconv.Itoa(sp.FedWeight)
 
 	fedres.PigstyId = in.PigstyId
@@ -132,6 +146,37 @@ func (sp *ScaleProcess) ChoosePigsty(in *fsapi.ChoosePigstyReq, fedres *fsapi.Cu
 	return
 }
 
+func (sp *ScaleProcess) ChoosePigsty(in *fsapi.ChoosePigstyReq, fedres *fsapi.CurrentFedRes) (err error) {
+
+	//TODO 增加合法性校验，设备是否合法，是否已经开始了一次的喂料过程，距离上次喂料时间有多长。
+	//当前重量是否合理，时间是否合理。
+	resHeader := fedres.ResHeader
+	resHeader.ErrCode = fsapi.ErrCode_ERR_SUCCESS
+	resHeader.ErrMsg = ""
+
+	//记录原始数据
+	err = sp.chooseStyLog(in, fedres)
+	if err != nil {
+		resHeader.ErrCode = fsapi.ErrCode_ERR_FAILED
+		resHeader.ErrMsg = "db operator fail"
+		return
+	}
+
+	//计算重量
+
+	err = sp.calcScaleData(in, fedres)
+	if err != nil {
+		resHeader.ErrCode = fsapi.ErrCode_ERR_FAILED
+		resHeader.ErrMsg = "calc scale data  fail"
+		return
+	}
+
+	//记录 “计算结果” 到数据
+
+	return
+}
+
+//
 func (sp *ScaleProcess) UploadRawInfo(in *fsapi.ChoosePigstyReq, fedres *fsapi.CurrentFedRes) (err error) {
 
 	//TODO 增加合法性校验，设备是否合法，是否已经开始了一次的喂料过程，距离上次喂料时间有多长。
@@ -167,11 +212,6 @@ func (sp *ScaleProcess) UploadRawInfo(in *fsapi.ChoosePigstyReq, fedres *fsapi.C
 		resHeader.ErrMsg = "operate db not insert error!"
 		return
 	}
-	sp.FedWeight = sp.CurrentWeight - CurrentWeight
-	sp.PigstyId, err = strconv.Atoi(in.PigstyId)
-	fedres.FedWeight = strconv.Itoa(CurrentWeight)
-	fedres.PigstyId = in.PigstyId
-	sp.CurrentWeight = CurrentWeight
-	sp.LastTime = int(time.Now().Unix())
+
 	return
 }

@@ -17,6 +17,8 @@ protoc --proto_path=%proPath% --proto_path=%batPath% --go_out=plugins=grpc:./ fs
 
 
 cd %outPath%
+cd fsapi
+
 go build
 
 cd %batPath%
