@@ -88,6 +88,8 @@ func (fms *Farmers) getPigstys(houseInfo *fspub.PigHouseInfo) (err error) {
 
 func (fms *Farmers) GetFarmerInfoByDev(devId string) (farmerInfo *fspub.Farmer, err error) {
 	var farmer fspub.Farmer
+
+	fmt.Println("DEVID :", devId)
 	// 获取猪场主信息
 	if err = fms.getFarmerByDev(devId, &farmer); err != nil {
 		fmt.Println("getFarmerByDev error:", err)

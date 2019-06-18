@@ -10,6 +10,9 @@ package fsapi;
 option go_package = "github.com/iopig/feed-scale/interface/grpc/go_out/fsapi";
 option java_package = "cn.iopig.feed.scale.grpc";
 import "global_def.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "FeedScalceGrpcGw";
 //本接口中，重量采用“克”为单位
 // The greeting service definition.
 // interface between feed scale and pad  
@@ -18,14 +21,14 @@ service FsPad {
     //PAD 登录
     rpc PadLogin (DevInfoReq) returns (PigstyInfoRes) {}
 
-    //上料命令
-    rpc LoadCmd(LoadReq) returns (fsapi.ResHeader) {}
+/*    //上料命令
+    rpc LoadCmd(LoadReq) returns (ResHeader) {}
 
     //选择猪圈
     rpc ChoosePigsty(UploadDevDateReq) returns (CurrentFedRes) {}
-
+*/
     //上传当前重量
-    rpc UploadRawInfo(UploadDevDateReq) returns (CurrentFedRes) {}
+    rpc UploadRawInfo(UploadDevDateReq) returns (ResHeader) {}
 
     
 }
@@ -40,7 +43,7 @@ message PigstyInfo{
     //喂料推荐值，单位为
     uint32 AdviseWeight = 4;
     //上次喂料时间戳 unix_timestamp
-    uint32 LastFed = 5;
+    uint64 LastFed = 5;
     //猪的id列表
     repeated string PigId = 6;
 }
@@ -65,17 +68,20 @@ message PigstyInfoRes {
     string PigFarmId  = 2;
     //猪场主人
     string farmer   = 3;
+    //猪舍信息
     repeated PigHouseInfo pigHouseInfo = 4;   
+    //猪场版本信息
+    string FarmVer=  5;
 }
 //LoadReq
-message LoadReq {
+/*message LoadReq {
     //Version ,Devid ,Timestamp
     fsapi.ReqHeader ReqHeader  = 1;
     //当前重量
     string CurrentWeight = 2;
 
     
-}
+}*/
 
 
 
@@ -85,17 +91,12 @@ message LoadReq {
 //如果下一秒的数据无变化，那么不上传数据。
 message ScaleDevRawData {
     //当前猪圈
-    string PigstyId = 1;
+    int32 PigstyId = 1;
     //当前重量，重量采用“克”为单位
-    string CurrentWeight = 2;
-    enum CmdType {
-        //上料
-        UPLOAD_FODDER = 0;
-        //喂料
-        FEED_FODDER = 1;
-    }
-    CmdType type= 3;
-    int32 Timestamp = 4;
+    double CurrentWeight = 2;	
+    fsapi.FeedType FeedType = 3;
+    uint64  Timestamp = 4;
+    
 
 }
 message UploadDevDateReq {
@@ -112,7 +113,7 @@ message UploadDevDateReq {
 
 
 //CurrentFedRes
-message CurrentFedRes {
+/*message CurrentFedRes {
     //error number ,error detail
     fsapi.ResHeader ResHeader  = 1;
     //当前猪圈
@@ -120,4 +121,4 @@ message CurrentFedRes {
     //已经喂料重量，重量采用“克”为单位
     string FedWeight = 3;
     //
-}
+}*/

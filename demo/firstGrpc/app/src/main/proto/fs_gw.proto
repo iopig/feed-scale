@@ -11,11 +11,9 @@ option go_package = "github.com/iopig/feed-scale/interface/grpc/go_out/fsapi";
 option java_package = "cn.iopig.feed.scale.grpc";
 import "global_def.proto";
 
-
 option java_multiple_files = true;
 option java_outer_classname = "FeedScalceGrpcGw";
-
-
+//本接口中，重量采用“克”为单位
 // The greeting service definition.
 // interface between feed scale and pad  
 service FsPad {
@@ -27,10 +25,10 @@ service FsPad {
     rpc LoadCmd(LoadReq) returns (fsapi.ResHeader) {}
 
     //选择猪圈
-    rpc ChoosePigsty(ChoosePigstyReq) returns (CurrentFedRes) {}
+    rpc ChoosePigsty(UploadDevDateReq) returns (CurrentFedRes) {}
 
     //上传当前重量
-    rpc UploadRawInfo(ChoosePigstyReq) returns (CurrentFedRes) {}
+    rpc UploadRawInfo(UploadDevDateReq) returns (CurrentFedRes) {}
 
     
 }
@@ -78,12 +76,7 @@ message LoadReq {
     fsapi.ReqHeader ReqHeader  = 1;
     //当前重量
     string CurrentWeight = 2;
-    //命令：1开始，2结束
-    // enum CmdType {
-    //     START_LOAD = 0;
-    //     END_LOAD = 1;
-    // }
-    //CmdType type= 3;
+
     
 }
 
@@ -93,14 +86,32 @@ message LoadReq {
 //称在一秒内6次上传当前重量,重量选取算法：
 //如果一秒内的重量变化（小于0.5kg），那么上传当前重量。
 //如果下一秒的数据无变化，那么不上传数据。
-message ChoosePigstyReq {
+message ScaleDevRawData {
+    //当前猪圈
+    string PigstyId = 1;
+    //当前重量，重量采用“克”为单位
+    string CurrentWeight = 2;
+    enum CmdType {
+        //上料
+        UPLOAD_FODDER = 0;
+        //喂料
+        FEED_FODDER = 1;
+    }
+    CmdType type= 3;
+    int32 Timestamp = 4;
+
+}
+message UploadDevDateReq {
     //Version ,Devid ,Timestamp
     fsapi.ReqHeader ReqHeader  = 1;
-    //当前猪圈
-    string PigstyId = 2;
-    //当前重量
-    string CurrentWeight = 3;
+    repeated ScaleDevRawData DevRawData = 2;
+    
+    //饲料id
+    //string FodderId = 4; version1.1
+    //推荐的重量
+    //string AdviseWeight = 5; version1.1
 }
+
 
 
 //CurrentFedRes
@@ -109,7 +120,7 @@ message CurrentFedRes {
     fsapi.ResHeader ResHeader  = 1;
     //当前猪圈
     string PigstyId = 2;
-    //已经喂料重量
+    //已经喂料重量，重量采用“克”为单位
     string FedWeight = 3;
     //
 }

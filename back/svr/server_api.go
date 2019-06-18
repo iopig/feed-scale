@@ -9,6 +9,12 @@ import (
 	"golang.org/x/net/context"
 )
 
+/*const (
+	FEED_CMD_TYPE_LOAD          = 1
+	FEED_CMD_TYPE_CHOOSE_PIGSTY = 2
+	FEED_CMD_TYPE_WEIGHT_INFO   = 3
+)*/
+
 type SvrApi struct {
 	//TODO redis for every device id
 	ScaleProcessMap map[int]*ScaleProcess
@@ -18,7 +24,6 @@ func (c *SvrApi) Init() {
 	c.ScaleProcessMap = make(map[int]*ScaleProcess)
 }
 
-//pad登录
 func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.PigstyInfoRes, error) {
 
 	var famers Farmers
@@ -47,9 +52,9 @@ func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.Pig
 			pigstyInfo.PigNum = U.PigNum
 			pigstyInfo.AverageWeight = U.AverageWeight
 			//TODO add advise algorithm
-			pigstyInfo.AdviseWeight = 5000
+			pigstyInfo.AdviseWeight = 50000
 			//TODO
-			pigstyInfo.LastFed = uint32(time.Now().Unix()) - 3600
+			pigstyInfo.LastFed = uint64(time.Now().Unix())
 			pigstyInfo.PigId = append(pigstyInfo.PigId, "1")
 		}
 
@@ -58,8 +63,7 @@ func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.Pig
 	return &pistyInfoRes, err
 }
 
-//上料
-func (c *SvrApi) LoadCmd(ctx context.Context, in *fsapi.LoadReq) (*fsapi.ResHeader, error) {
+/*func (c *SvrApi) LoadCmd(ctx context.Context, in *fsapi.LoadReq) (*fsapi.ResHeader, error) {
 
 	var ResHeader fsapi.ResHeader
 	Devid, err := strconv.Atoi(in.ReqHeader.DevId)
@@ -74,9 +78,7 @@ func (c *SvrApi) LoadCmd(ctx context.Context, in *fsapi.LoadReq) (*fsapi.ResHead
 	//当前重量
 	return &ResHeader, err
 }
-
-//选择猪圈
-func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.ChoosePigstyReq) (*fsapi.CurrentFedRes, error) {
+func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsapi.CurrentFedRes, error) {
 	var CurrentFedRes fsapi.CurrentFedRes
 
 	Devid, err := strconv.Atoi(in.ReqHeader.DevId)
@@ -90,21 +92,22 @@ func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.ChoosePigstyReq) (*
 	c.ScaleProcessMap[Devid].ChoosePigsty(in, &CurrentFedRes)
 
 	return &CurrentFedRes, err
-}
+}*/
+func (c *SvrApi) UploadRawInfo(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsapi.ResHeader, error) {
+	fmt.Println("upload raw info func is called ")
+	var CurrentFedRes fsapi.ResHeader
 
-//上传饲料称的原始信息
-func (c *SvrApi) UploadRawInfo(ctx context.Context, in *fsapi.ChoosePigstyReq) (*fsapi.CurrentFedRes, error) {
-	var CurrentFedRes fsapi.CurrentFedRes
-
-	Devid, err := strconv.Atoi(in.ReqHeader.DevId)
-	if c.ScaleProcessMap[Devid] == nil {
-		c.ScaleProcessMap[Devid] = &ScaleProcess{
+	devId, err := strconv.Atoi(in.ReqHeader.DevId)
+	if c.ScaleProcessMap[devId] == nil {
+		c.ScaleProcessMap[devId] = &ScaleProcess{
 			CurrentWeight: 0,
 			FedWeight:     0,
-			DevId:         Devid,
+			DevId:         devId,
 		}
 	}
-	c.ScaleProcessMap[Devid].UploadRawInfo(in, &CurrentFedRes)
+	for _, v := range in.DevRawData {
+		c.ScaleProcessMap[devId].UploadRawInfo(v, &CurrentFedRes)
+	}
 
 	return &CurrentFedRes, err
 }

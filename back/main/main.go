@@ -44,6 +44,8 @@ func main() {
 	initArgs()
 	initEnv()
 
+	go fssvr.StartUdpSvr(&svrApi)
+
 	lis, err := net.Listen("tcp", port)
 
 	if err != nil {
