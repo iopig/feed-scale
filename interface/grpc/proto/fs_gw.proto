@@ -97,7 +97,7 @@ message PigstyInfoRes {
 //如果下一秒的数据无变化，那么不上传数据。
 message ScaleDevRawData {
     //当前猪圈
-    int32 PigstyId = 1;
+    string PigstyId = 1;
     //当前重量，重量采用“千克”为单位
     double CurrentWeight = 2;	
     //“上料”，“喂料”

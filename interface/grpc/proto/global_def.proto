@@ -44,6 +44,8 @@ message ReqHeader {
     string DevId =2;
     //时间戳 unix_timestamp
     uint64 Ts = 3;
+    //猪场配置信息
+    int32 ConfigVersion =4;
 }
 message ResHeader {
     // 现在版本默认为 1

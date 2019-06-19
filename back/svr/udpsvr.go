@@ -31,7 +31,7 @@ func StartUdpSvr(srv *SvrApi) {
 	var in fsapi.ScaleDevRawData
 	in.CurrentWeight = 3.99
 	//in.FeedType = fsapi.FeedType_WEIGHT_INFO
-	in.PigstyId = -1
+	in.PigstyId = "-1"
 	in.Timestamp = 1560484862010
 	// 对数据进行序列化
 	data, err := proto.Marshal(&in)
