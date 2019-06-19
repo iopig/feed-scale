@@ -19,7 +19,7 @@ type ScaleProcess struct {
 	CurrentWeight  int
 	DevFirstWeight int
 	PigstyData     map[int]*pistyLog
-	DevId          int
+	DevId          string
 	LastTime       int
 	StartTime      int
 	FedWeight      int //从喂料开始 到当前时间，一共喂料的重量。
@@ -178,10 +178,10 @@ func (sp *ScaleProcess) UploadRawInfo(in *fsapi.ScaleDevRawData, fedres *fsapi.R
 	}
 	defer stm.Close()
 
-	CurrentWeight := int(in.CurrentWeight)
+	CurrentWeight := int(in.CurrentWeight * 1000)
 
 	res, err := stm.Exec(in.PigstyId, 0, 0, sp.DevId,
-		CurrentWeight, 0, in.Timestamp, in.FeedType)
+		CurrentWeight, 0, in.Timestamp/1000, in.FeedType)
 	if err != nil {
 		fmt.Println(err)
 		fedres.ErrCode = fsapi.ErrCode_ERR_SUCCESS

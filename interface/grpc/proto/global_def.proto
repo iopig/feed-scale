@@ -31,7 +31,7 @@ enum FeedType{
     LOAD          = 0;
     //选择猪栏
     CHOOSE_PIGSTY = 1;
-    //重量信息
+    //喂料信息
 	WEIGHT_INFO   = 2;
 
 }

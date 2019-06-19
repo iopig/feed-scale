@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/iopig/feed-scale/back/common"
 	"github.com/iopig/feed-scale/interface/grpc/go_out/fsapi"
 	"golang.org/x/net/context"
 )
@@ -17,11 +18,19 @@ import (
 
 type SvrApi struct {
 	//TODO redis for every device id
-	ScaleProcessMap map[int]*ScaleProcess
+	ScaleProcessMap map[string]*ScaleProcess
+	PigSpecies      map[int]string
+	RA              common.RecommendateAlgm
 }
 
 func (c *SvrApi) Init() {
-	c.ScaleProcessMap = make(map[int]*ScaleProcess)
+	common.MysqlInit(common.MysqlConfig{
+		ConnectStr:   "root:0pl,9okm@tcp(192.168.100.102:3306)/fodder?charset=utf8",
+		MaxOpenConns: 2000,
+		MaxIdleConns: 2000,
+	})
+	c.ScaleProcessMap = make(map[string]*ScaleProcess)
+	c.RA.InitDays()
 }
 
 func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.PigstyInfoRes, error) {
@@ -45,17 +54,25 @@ func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.Pig
 		pistyInfoRes.PigHouseInfo = append(pistyInfoRes.PigHouseInfo, &pigHouseInfo)
 		pigHouseInfo.HouseId = v.HouseId
 		pigHouseInfo.PigstyInfo = make([]*fsapi.PigstyInfo, 0, len(v.PigstyInfoList))
+
+		pigAge := (time.Now().Unix() - int64(v.PigAge)) / 86400
+		pigHouseInfo.AGE = strconv.FormatInt(pigAge, 10)
+
 		for _, U := range v.PigstyInfoList {
+
 			var pigstyInfo fsapi.PigstyInfo
 			pigHouseInfo.PigstyInfo = append(pigHouseInfo.PigstyInfo, &pigstyInfo)
 			pigstyInfo.PigstyId = U.PigstyId
 			pigstyInfo.PigNum = U.PigNum
 			pigstyInfo.AverageWeight = U.AverageWeight
 			//TODO add advise algorithm
-			pigstyInfo.AdviseWeight = 50000
+			pigstyInfo.AdviseWeight = c.RA.GatAdviseWeight(int(U.PigNum), int(pigAge))
 			//TODO
+
 			pigstyInfo.LastFed = uint64(time.Now().Unix())
 			pigstyInfo.PigId = append(pigstyInfo.PigId, "1")
+			pigstyInfo.StyName = U.StyName
+			pigstyInfo.PigSpecies = U.SpeciesName
 		}
 
 	}
@@ -97,17 +114,21 @@ func (c *SvrApi) UploadRawInfo(ctx context.Context, in *fsapi.UploadDevDateReq) 
 	fmt.Println("upload raw info func is called ")
 	var CurrentFedRes fsapi.ResHeader
 
-	devId, err := strconv.Atoi(in.ReqHeader.DevId)
-	if c.ScaleProcessMap[devId] == nil {
-		c.ScaleProcessMap[devId] = &ScaleProcess{
+	//devId, err := strconv.Atoi(in.ReqHeader.DevId)
+	if c.ScaleProcessMap[in.ReqHeader.DevId] == nil {
+		c.ScaleProcessMap[in.ReqHeader.DevId] = &ScaleProcess{
 			CurrentWeight: 0,
 			FedWeight:     0,
-			DevId:         devId,
+			DevId:         in.ReqHeader.DevId,
 		}
 	}
 	for _, v := range in.DevRawData {
-		c.ScaleProcessMap[devId].UploadRawInfo(v, &CurrentFedRes)
+		err := c.ScaleProcessMap[in.ReqHeader.DevId].UploadRawInfo(v, &CurrentFedRes)
+		if err != nil {
+			fmt.Println(err)
+			return nil, nil
+		}
 	}
 
-	return &CurrentFedRes, err
+	return &CurrentFedRes, nil
 }

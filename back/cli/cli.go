@@ -64,7 +64,7 @@ func UdpPadLogin() (err error) {
 		return nil
 	}
 
-	resByte, err = hex.DecodeString("FEEF9FF9002600010A1C08810C12103837313637316363303134396235373918B485F29FB62DFEEF9FF9002600010A1C08810C12103837313637316363303134396235373918EA87F29FB62D")
+	resByte, err = hex.DecodeString("FEEF9FF9002600010A1C08810C12103837313637316363303134396235373918F3DDB4D2B62D")
 	n, err := conn.Write(resByte)
 	//n, err := conn.Write(resByte)
 
@@ -167,6 +167,7 @@ func UploadRawInfoUdp() (err error) {
 		fmt.Println(err)
 		return nil
 	}
+	resByte, err = hex.DecodeString("")
 
 	n, err := conn.Write(resByte)
 
@@ -194,6 +195,10 @@ func main() {
 		}
 		fmt.Println("b:", b)*/
 	//	PadLogin()
+	fmt.Println("time now day :", time.Now().Unix())
+	fmt.Println("time yes day :", time.Unix(1555689619, 0).Day())
+	interv := (time.Now().Unix() - 1555689619) / 86400
+	fmt.Println("time:", interv)
 	UdpPadLogin()
 	//UploadRawInfoUdp()
 }

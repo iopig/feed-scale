@@ -20,12 +20,17 @@ type PigstyInfo struct {
 	AdviseWeight  uint32
 	LastFed       uint32
 	PigIdList     []string
+	DaysAge       uint32
+	SpeciesID     uint32
+	SpeciesName   string
+	StyName       string
 }
 
 //猪舍信息
 type PigHouseInfo struct {
 	HouseId        string
 	DetailInfo     string
+	PigAge         int32
 	PigstyInfoList []PigstyInfo
 }
 

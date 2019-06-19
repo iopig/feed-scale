@@ -40,19 +40,25 @@ message PigstyInfo{
     uint32 PigNum = 2;
     //猪平均重量,单位为“克”
     uint32 AverageWeight = 3;
-    //喂料推荐值，单位为
+    //喂料推荐值，单位为“克”
     uint32 AdviseWeight = 4;
     //上次喂料时间戳 unix_timestamp
-    uint64 LastFed = 5;
+    uint64 LastFed = 5;    
     //猪的id列表
     repeated string PigId = 6;
+    //猪圈名称
+    string StyName = 7;
+    //猪的品种
+    string PigSpecies =8;
 }
 
 message PigHouseInfo{
     //猪舍ID
     string HouseId = 1;
+    //日龄
+    string AGE= 2;
     //猪圈信息
-    repeated  PigstyInfo pigstyInfo = 2;
+    repeated  PigstyInfo pigstyInfo = 3;
 }
 message DevInfoReq{
     //Version ,Devid ,Timestamp
@@ -92,8 +98,9 @@ message PigstyInfoRes {
 message ScaleDevRawData {
     //当前猪圈
     int32 PigstyId = 1;
-    //当前重量，重量采用“克”为单位
+    //当前重量，重量采用“千克”为单位
     double CurrentWeight = 2;	
+    //“上料”，“喂料”
     fsapi.FeedType FeedType = 3;
     uint64  Timestamp = 4;
     
@@ -102,7 +109,12 @@ message ScaleDevRawData {
 message UploadDevDateReq {
     //Version ,Devid ,Timestamp
     fsapi.ReqHeader ReqHeader  = 1;
+
+
     repeated ScaleDevRawData DevRawData = 2;
+
+    //包序号
+    int32 SerialNo =3;
     
     //饲料id
     //string FodderId = 4; version1.1
