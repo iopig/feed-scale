@@ -17,15 +17,16 @@ import (
 )*/
 
 type SvrApi struct {
-	//TODO redis for every device id
+	//TODO 这些缓存数据应该放在redis中
 	ScaleProcessMap map[string]*ScaleProcess
 	PigSpecies      map[int]string
 	RA              common.RecommendateAlgm
 }
 
-func (c *SvrApi) Init() {
+func (c *SvrApi) Init(mysqlUrl string) {
 	common.MysqlInit(common.MysqlConfig{
-		ConnectStr:   "root:0pl,9okm@tcp(192.168.100.102:3306)/fodder?charset=utf8",
+		//ConnectStr:   "root:0pl,9okm@tcp(192.168.100.102:3306)/fodder?charset=utf8",
+		ConnectStr:   mysqlUrl,
 		MaxOpenConns: 2000,
 		MaxIdleConns: 2000,
 	})
@@ -111,6 +112,28 @@ func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.UploadDevDateReq) (
 	return &CurrentFedRes, err
 }*/
 func (c *SvrApi) UploadRawInfo(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsapi.ResHeader, error) {
+	fmt.Println("upload raw info func is called ")
+	var CurrentFedRes fsapi.ResHeader
+
+	//devId, err := strconv.Atoi(in.ReqHeader.DevId)
+	if c.ScaleProcessMap[in.ReqHeader.DevId] == nil {
+		c.ScaleProcessMap[in.ReqHeader.DevId] = &ScaleProcess{
+			CurrentWeight: 0,
+			FedWeight:     0,
+			DevId:         in.ReqHeader.DevId,
+		}
+	}
+	for _, v := range in.DevRawData {
+		err := c.ScaleProcessMap[in.ReqHeader.DevId].UploadRawInfo(v, &CurrentFedRes)
+		if err != nil {
+			fmt.Println(err)
+			return nil, nil
+		}
+	}
+
+	return &CurrentFedRes, nil
+}
+func (c *SvrApi) GetLast(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsapi.ResHeader, error) {
 	fmt.Println("upload raw info func is called ")
 	var CurrentFedRes fsapi.ResHeader
 

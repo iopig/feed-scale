@@ -10,9 +10,10 @@ import (
 	"github.com/iopig/feed-scale/interface/grpc/go_out/fsapi"
 )
 
-func StartUdpSvr(srv *SvrApi) {
+func StartUdpSvr(srv *SvrApi, udpServerAddr string) {
 	//TODO 考虑udp的并发处理数据
-	addr, err := net.ResolveUDPAddr("udp", "0.0.0.0:1234")
+	//addr, err := net.ResolveUDPAddr("udp", "0.0.0.0:1234")
+	addr, err := net.ResolveUDPAddr("udp", udpServerAddr)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

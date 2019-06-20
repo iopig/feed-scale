@@ -15,7 +15,7 @@ import (
 
 func PadLogin() (err error) {
 
-	cli, err := grpc.Dial("117.139.13.149:50051", grpc.WithInsecure())
+	cli, err := grpc.Dial("192.168.100.102:50051", grpc.WithInsecure())
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -41,7 +41,7 @@ func PadLogin() (err error) {
 
 func UdpPadLogin() (err error) {
 
-	conn, err := net.Dial("udp", "127.0.0.1:1234")
+	conn, err := net.Dial("udp", "192.168.100.102:1234")
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -90,7 +90,7 @@ func UdpPadLogin() (err error) {
 }
 
 func UploadRawInfo() (err error) {
-	cli, err := grpc.Dial("127.0.0.1:50051", grpc.WithInsecure())
+	cli, err := grpc.Dial("192.168.100.102:50051", grpc.WithInsecure())
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -100,7 +100,7 @@ func UploadRawInfo() (err error) {
 
 	Ssle := []*fsapi.ScaleDevRawData{
 		&fsapi.ScaleDevRawData{
-			PigstyId:      1,
+			PigstyId:      "1",
 			CurrentWeight: 2000,
 			FeedType:      3,
 			Timestamp:     uint64(time.Now().Unix()),
@@ -134,7 +134,7 @@ func UploadRawInfo() (err error) {
 }
 
 func UploadRawInfoUdp() (err error) {
-	conn, err := net.Dial("udp", "127.0.0.1:1234")
+	conn, err := net.Dial("udp", "192.168.100.102:1234")
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -143,7 +143,7 @@ func UploadRawInfoUdp() (err error) {
 
 	Ssle := []*fsapi.ScaleDevRawData{
 		&fsapi.ScaleDevRawData{
-			PigstyId:      1,
+			PigstyId:      "103",
 			CurrentWeight: 2000,
 			FeedType:      3,
 			Timestamp:     uint64(time.Now().Unix()),

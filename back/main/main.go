@@ -34,18 +34,23 @@ func initEnv() {
 
 func main() {
 	var (
-		//	err error
+		err        error
 		grpcServer *grpc.Server
 		svrApi     fssvr.SvrApi
+		lis        net.Listener
 	)
 
 	// 初始化环境
 	initArgs()
 	initEnv()
+	if err = InitConfig(confFile); err != nil {
+		goto ERR
+	}
+	svrApi.Init(G_config.DataBaseConnetUrl)
 
-	go fssvr.StartUdpSvr(&svrApi)
+	go fssvr.StartUdpSvr(&svrApi, G_config.FeedScaleUploadUdpServerAddr)
 
-	lis, err := net.Listen("tcp", port)
+	lis, err = net.Listen("tcp", G_config.FeedScaleUploadGrpcPort)
 
 	if err != nil {
 		log.Fatal("fail to listen")
@@ -55,8 +60,6 @@ func main() {
 	grpcServer = grpc.NewServer()
 
 	fsapi.RegisterFsPadServer(grpcServer, &svrApi)
-
-	svrApi.Init()
 
 	reflection.Register(grpcServer)
 	if err := grpcServer.Serve(lis); err != nil {
