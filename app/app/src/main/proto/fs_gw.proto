@@ -1,0 +1,136 @@
+//protoc -I ./ --go_out=plugins=grpc:./ ./test.proto
+/*
+ * cd citychain
+ * protoc -I=. -I=ccapi/grpc/proto  --go_out=plugins=grpc:./ interface/grpc/proto/cc.proto
+ */
+
+syntax = "proto3";
+
+package fsapi;
+option go_package = "github.com/iopig/feed-scale/interface/grpc/go_out/fsapi";
+option java_package = "cn.iopig.feed.scale.grpc";
+import "global_def.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "FeedScalceGrpcGw";
+//本接口中，重量采用“克”为单位
+// The greeting service definition.
+// interface between feed scale and pad  
+service FsPad {
+
+    //PAD 登录
+    rpc PadLogin (DevInfoReq) returns (PigstyInfoRes) {}
+
+/*    //上料命令
+    rpc LoadCmd(LoadReq) returns (ResHeader) {}
+
+    //选择猪圈
+    rpc ChoosePigsty(UploadDevDateReq) returns (CurrentFedRes) {}
+*/
+    //上传当前重量
+    rpc UploadRawInfo(UploadDevDateReq) returns (ResHeader) {}
+
+    
+}
+
+message PigstyInfo{
+    //猪圈ID
+    string PigstyId = 1;
+    //猪数量
+    uint32 PigNum = 2;
+    //猪平均重量,单位为“克”
+    uint32 AverageWeight = 3;
+    //喂料推荐值，单位为“克”
+    uint32 AdviseWeight = 4;
+    //上次喂料时间戳 unix_timestamp
+    uint64 LastFed = 5;    
+    //猪的id列表
+    repeated string PigId = 6;
+    //猪圈名称
+    string StyName = 7;
+    //猪的品种
+    string PigSpecies =8;
+}
+
+message PigHouseInfo{
+    //猪舍ID
+    string HouseId = 1;
+    //日龄
+    string AGE= 2;
+    //猪圈信息
+    repeated  PigstyInfo pigstyInfo = 3;
+}
+message DevInfoReq{
+    //Version ,Devid ,Timestamp
+    fsapi.ReqHeader ReqHeader = 1; 
+    //gps local
+
+}
+//
+message PigstyInfoRes {
+    //Version ,Devid ,Timestamp
+    fsapi.ReqHeader ReqHeader  = 1;
+    //猪场ID
+    string PigFarmId  = 2;
+    //猪场主人
+    string farmer   = 3;
+    //猪舍信息
+    repeated PigHouseInfo pigHouseInfo = 4;   
+    //猪场版本信息
+    string FarmVer=  5;
+}
+//LoadReq
+/*message LoadReq {
+    //Version ,Devid ,Timestamp
+    fsapi.ReqHeader ReqHeader  = 1;
+    //当前重量
+    string CurrentWeight = 2;
+
+    
+}*/
+
+
+
+//ChoosePigstyReq
+//称在一秒内6次上传当前重量,重量选取算法：
+//如果一秒内的重量变化（小于0.5kg），那么上传当前重量。
+//如果下一秒的数据无变化，那么不上传数据。
+message ScaleDevRawData {
+    //当前猪圈
+    string PigstyId = 1;
+    //当前重量，重量采用“千克”为单位
+    double CurrentWeight = 2;	
+    //“上料”，“喂料”
+    fsapi.FeedType FeedType = 3;
+    uint64  Timestamp = 4;
+    
+
+}
+message UploadDevDateReq {
+    //Version ,Devid ,Timestamp
+    fsapi.ReqHeader ReqHeader  = 1;
+
+
+    repeated ScaleDevRawData DevRawData = 2;
+
+    //包序号
+    int32 SerialNo =3;
+    
+    //饲料id
+    //string FodderId = 4; version1.1
+    //推荐的重量
+    //string AdviseWeight = 5; version1.1
+}
+
+
+
+//CurrentFedRes
+/*message CurrentFedRes {
+    //error number ,error detail
+    fsapi.ResHeader ResHeader  = 1;
+    //当前猪圈
+    string PigstyId = 2;
+    //已经喂料重量，重量采用“克”为单位
+    string FedWeight = 3;
+    //
+}*/

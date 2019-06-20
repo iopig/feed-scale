@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package fsapi;
+
+option go_package = "github.com/iopig/feed-scale/interface/grpc/go_out/fsapi";
+option java_package = "cn.iopig.feed.scale.grpc";
+
+option java_multiple_files = true;
+
+option objc_class_prefix = "HLW";
+
+enum ErrCode {
+    ERR_SUCCESS               =0;       //0 成功
+    ERR_FAILED                =1;       //1 失败
+    ERR_DEVID_NOT_EXIST       =2;       //2 地址已经存在
+    ERR_CONN_TO_DA_NOT_READY  =3;       //3 连接没有准备好
+}
+
+
+
+/*enum CmdType {
+    //上料
+    UPLOAD_FODDER = 0;
+    //喂料
+    FEED_FODDER = 1;
+
+}*/
+
+enum FeedType{
+    //上料信息
+    LOAD          = 0;
+    //选择猪栏
+    CHOOSE_PIGSTY = 1;
+    //喂料信息
+	WEIGHT_INFO   = 2;
+
+}
+
+
+message ReqHeader {
+    // 现在版本默认为 1
+    int32 Version = 1;
+    // 设备ID
+    string DevId =2;
+    //时间戳 unix_timestamp
+    uint64 Ts = 3;
+    //猪场配置信息
+    int32 ConfigVersion =4;
+}
+message ResHeader {
+    // 现在版本默认为 1
+    int32 Version = 1;
+    ErrCode ErrCode = 2;
+    string ErrMsg =3;
+    string ReqId = 4;
+}
