@@ -82,3 +82,31 @@ func TestByteSplit(t *testing.T) {
 	//	t.Errorf("wrong number of function calls, got %d want %d", len(got), 1)
 
 }
+
+func assginParameter() (ret int) {
+	i := 0
+	ret = 0
+	for i < 3 {
+		go func() {
+			time.Sleep(1)
+			fmt.Println("get value ", ret)
+		}()
+		i++
+	}
+	return 1
+}
+func calc(index string, a, b int) int {
+	ret := a + b
+	fmt.Println(index, a, b, ret)
+	return ret
+}
+
+func TestInterface2(t *testing.T) {
+
+	a := 1
+	b := 2
+	defer calc("1", a, calc("10", a, b))
+	a = 0
+	defer calc("2", a, calc("20", a, b))
+	b = 1
+}

@@ -62,8 +62,9 @@ message PigHouseInfo{
 }
 message DevInfoReq{
     //Version ,Devid ,Timestamp
-    fsapi.ReqHeader ReqHeader = 1; 
-    //gps local
+    fsapi.ReqHeader ReqHeader = 1;
+    //猪场配置信息
+    int32 ConfigVersion =4;
 
 }
 //
@@ -78,6 +79,8 @@ message PigstyInfoRes {
     repeated PigHouseInfo pigHouseInfo = 4;   
     //猪场版本信息
     string FarmVer=  5;
+
+    int32 ConfigVersion = 6;
 }
 //LoadReq
 /*message LoadReq {

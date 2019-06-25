@@ -15,7 +15,7 @@ import (
 
 func PadLogin() (err error) {
 
-	cli, err := grpc.Dial("192.168.100.102:50051", grpc.WithInsecure())
+	cli, err := grpc.Dial("127.0.0.1:50051", grpc.WithInsecure())
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -41,7 +41,7 @@ func PadLogin() (err error) {
 
 func UdpPadLogin() (err error) {
 
-	conn, err := net.Dial("udp", "192.168.100.102:1234")
+	conn, err := net.Dial("udp", "127.0.0.1:1234")
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -64,7 +64,7 @@ func UdpPadLogin() (err error) {
 		return nil
 	}
 
-	resByte, err = hex.DecodeString("FEEF9FF9002600010A1C08810C12103837313637316363303134396235373918F3DDB4D2B62D")
+	resByte, err = hex.DecodeString("FEEF9FF9002300010A1912103337343661353035313532633630616118C9C0BFCFB72D")
 	n, err := conn.Write(resByte)
 	//n, err := conn.Write(resByte)
 
@@ -90,7 +90,7 @@ func UdpPadLogin() (err error) {
 }
 
 func UploadRawInfo() (err error) {
-	cli, err := grpc.Dial("192.168.100.102:50051", grpc.WithInsecure())
+	cli, err := grpc.Dial("127.0.0.1:50051", grpc.WithInsecure())
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -134,7 +134,7 @@ func UploadRawInfo() (err error) {
 }
 
 func UploadRawInfoUdp() (err error) {
-	conn, err := net.Dial("udp", "192.168.100.102:1234")
+	conn, err := net.Dial("udp", "127.0.0.1:1234")
 
 	if err != nil {
 		fmt.Println(err.Error())

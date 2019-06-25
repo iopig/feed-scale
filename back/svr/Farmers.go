@@ -14,14 +14,14 @@ type Farmers struct {
 func (fms *Farmers) getFarmerByDev(devId string, farmer *fspub.Farmer) (err error) {
 
 	rows, err := common.MysqlDbHandle.Query(
-		"SELECT farmer.id,farmer.address,farmer.name FROM device,farmer where device.id=? and device.owner_id=farmer.id  ", devId)
+		"SELECT farmer.id,farmer.address,farmer.name,farmer.ver FROM device,farmer where device.id=? and device.owner_id=farmer.id  ", devId)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer rows.Close()
 	for rows.Next() {
-		if err := rows.Scan(&farmer.Id, &farmer.Address, &farmer.Name); err != nil {
+		if err := rows.Scan(&farmer.Id, &farmer.Address, &farmer.Name, &farmer.Version); err != nil {
 			fmt.Println("getFarmerByDev error:")
 			fmt.Println(err)
 			return err
@@ -123,6 +123,6 @@ func (fms *Farmers) GetFarmerInfoByDev(devId string) (farmerInfo *fspub.Farmer, 
 			return nil, err
 		}
 	}
-
+	fmt.Println("farmer :", farmerInfo)
 	return &farmer, nil
 }

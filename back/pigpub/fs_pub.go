@@ -41,4 +41,5 @@ type Farmer struct {
 	Address      string
 	Name         string
 	PigHouseList []PigHouseInfo
+	Version      int32
 }

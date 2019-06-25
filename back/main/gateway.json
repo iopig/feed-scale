@@ -7,4 +7,5 @@
 
   "数据库连接Url": "数据库用户名、密码、ip、端口，字符集",
   "DataBaseConnetUrl": "root:0pl,9okm@tcp(192.168.100.102:3306)/fodder?charset=utf8"
+  
 }

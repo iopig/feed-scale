@@ -1,6 +1,7 @@
 package fssvr
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -19,8 +20,10 @@ import (
 type SvrApi struct {
 	//TODO 这些缓存数据应该放在redis中
 	ScaleProcessMap map[string]*ScaleProcess
-	PigSpecies      map[int]string
-	RA              common.RecommendateAlgm
+	//PigSpecies      map[int]string
+	RA common.RecommendateAlgm
+	//下方猪场配置延时时间，单位为秒
+	StyCfgDelay int64
 }
 
 func (c *SvrApi) Init(mysqlUrl string) {
@@ -31,15 +34,45 @@ func (c *SvrApi) Init(mysqlUrl string) {
 		MaxIdleConns: 2000,
 	})
 	c.ScaleProcessMap = make(map[string]*ScaleProcess)
+	c.StyCfgDelay = 3600
 	c.RA.InitDays()
+	dbint, _ := common.GetOneIntegerFromDB("select sty_cfg_delay from sys_config")
+	if dbint != 0 {
+		c.StyCfgDelay = dbint
+	}
 }
 
 func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.PigstyInfoRes, error) {
 
 	var famers Farmers
 	var pistyInfoRes fsapi.PigstyInfoRes
+	var sp *ScaleProcess
+
+	var rh fsapi.ReqHeader
+
+	pistyInfoRes.ReqHeader = &rh
 
 	//TODO check in.ReqHeader.Ts is right ？
+
+	if c.ScaleProcessMap[in.ReqHeader.DevId] == nil {
+		sp = &ScaleProcess{
+			CurrentWeight: 0,
+			FedWeight:     0,
+			LastTime:      time.Now().Unix(),
+			DevId:         in.ReqHeader.DevId,
+		}
+		c.ScaleProcessMap[in.ReqHeader.DevId] = sp
+
+	} else {
+		sp = c.ScaleProcessMap[in.ReqHeader.DevId]
+		if in.ConfigVersion != 0 {
+			if c.ScaleProcessMap[in.ReqHeader.DevId].CfgVersion != in.ConfigVersion {
+
+			} else if time.Now().Unix()-c.ScaleProcessMap[in.ReqHeader.DevId].LastTime < c.StyCfgDelay {
+				return nil, errors.New("Not enough idle time for farmer config !")
+			}
+		}
+	}
 
 	fminfo, err := famers.GetFarmerInfoByDev(in.ReqHeader.DevId)
 	if err != nil {
@@ -49,6 +82,8 @@ func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.Pig
 	pistyInfoRes.Farmer = fminfo.Name
 	pistyInfoRes.PigFarmId = fminfo.Id
 	pistyInfoRes.PigHouseInfo = make([]*fsapi.PigHouseInfo, 0, len(fminfo.PigHouseList))
+	pistyInfoRes.ConfigVersion = fminfo.Version
+	sp.CfgVersion = fminfo.Version
 
 	for _, v := range fminfo.PigHouseList {
 		var pigHouseInfo fsapi.PigHouseInfo
@@ -142,9 +177,11 @@ func (c *SvrApi) GetLast(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsap
 		c.ScaleProcessMap[in.ReqHeader.DevId] = &ScaleProcess{
 			CurrentWeight: 0,
 			FedWeight:     0,
+			LastTime:      time.Now().Unix(),
 			DevId:         in.ReqHeader.DevId,
 		}
 	}
+	//
 	for _, v := range in.DevRawData {
 		err := c.ScaleProcessMap[in.ReqHeader.DevId].UploadRawInfo(v, &CurrentFedRes)
 		if err != nil {
@@ -152,6 +189,8 @@ func (c *SvrApi) GetLast(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsap
 			return nil, nil
 		}
 	}
+	c.ScaleProcessMap[in.ReqHeader.DevId].LastTime = time.Now().Unix()
+	//
 
 	return &CurrentFedRes, nil
 }

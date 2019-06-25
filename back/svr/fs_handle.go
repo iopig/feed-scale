@@ -20,10 +20,10 @@ type ScaleProcess struct {
 	DevFirstWeight int
 	PigstyData     map[int]*pistyLog
 	DevId          string
-	LastTime       int
-	StartTime      int
+	LastTime       int64
+	StartTime      int64
 	FedWeight      int //从喂料开始 到当前时间，一共喂料的重量。
-
+	CfgVersion     int32
 }
 
 /*func (sp *ScaleProcess) LoadCmd(in *fsapi.LoadReq, resHeader *fsapi.ResHeader) (err error) {
