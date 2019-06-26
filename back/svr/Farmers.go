@@ -11,7 +11,7 @@ import (
 type Farmers struct {
 }
 
-func (fms *Farmers) getFarmerByDev(devId string, farmer *fspub.Farmer) (err error) {
+func (fms *Farmers) GetFarmerByDev(devId string, farmer *fspub.Farmer) (err error) {
 
 	rows, err := common.MysqlDbHandle.Query(
 		"SELECT farmer.id,farmer.address,farmer.name,farmer.ver FROM device,farmer where device.id=? and device.owner_id=farmer.id  ", devId)
@@ -107,7 +107,7 @@ func (fms *Farmers) GetFarmerInfoByDev(devId string) (farmerInfo *fspub.Farmer, 
 
 	fmt.Println("DEVID :", devId)
 	// 获取猪场主信息
-	if err = fms.getFarmerByDev(devId, &farmer); err != nil {
+	if err = fms.GetFarmerByDev(devId, &farmer); err != nil {
 		fmt.Println("getFarmerByDev error:", err)
 		return nil, err
 	}

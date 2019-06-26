@@ -29,10 +29,20 @@ service FsPad {
 */
     //上传当前重量
     rpc UploadRawInfo(UploadDevDateReq) returns (ResHeader) {}
-
+//
+rpc GetHistoryFeedLog(HistoryReq)returns (stream PigstyInfo){}
     
 }
+message HistoryReq{
+      //Version ,Devid ,Timestamp
+      fsapi.ReqHeader ReqHeader  = 1;
+      //开始日期,由日期转化的unix_timestamp
+      uint64 StartTime = 2;    
+      //结束日期，由日期转化的unix_timestamp
+      uint64 EndTime = 3;  
+}
 
+//猪圈信息
 message PigstyInfo{
     //猪圈ID
     string PigstyId = 1;
@@ -50,8 +60,13 @@ message PigstyInfo{
     string StyName = 7;
     //猪的品种
     string PigSpecies =8;
+    //已喂料，单位为“克”
+    uint32 Finishedfeeding =9;
+    //第几次喂料
+    int32 FeedCount=10;
 }
 
+//猪舍信息
 message PigHouseInfo{
     //猪舍ID
     string HouseId = 1;

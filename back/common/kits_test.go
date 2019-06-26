@@ -102,11 +102,9 @@ func calc(index string, a, b int) int {
 }
 
 func TestInterface2(t *testing.T) {
+	var a, b int64
+	a = 1561453931
+	b = 1561453931 - (3600 * 42)
 
-	a := 1
-	b := 2
-	defer calc("1", a, calc("10", a, b))
-	a = 0
-	defer calc("2", a, calc("20", a, b))
-	b = 1
+	GetDayInterval(a, b)
 }

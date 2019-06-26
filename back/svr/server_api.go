@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/iopig/feed-scale/back/common"
+	fspub "github.com/iopig/feed-scale/back/pigpub"
 	"github.com/iopig/feed-scale/interface/grpc/go_out/fsapi"
 	"golang.org/x/net/context"
 )
@@ -84,6 +85,8 @@ func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.Pig
 	pistyInfoRes.PigHouseInfo = make([]*fsapi.PigHouseInfo, 0, len(fminfo.PigHouseList))
 	pistyInfoRes.ConfigVersion = fminfo.Version
 	sp.CfgVersion = fminfo.Version
+	farmid, _ := strconv.Atoi(fminfo.Id)
+	c.ScaleProcessMap[in.ReqHeader.DevId].FarmId = int32(farmid)
 
 	for _, v := range fminfo.PigHouseList {
 		var pigHouseInfo fsapi.PigHouseInfo
@@ -116,36 +119,6 @@ func (c *SvrApi) PadLogin(ctx context.Context, in *fsapi.DevInfoReq) (*fsapi.Pig
 	return &pistyInfoRes, err
 }
 
-/*func (c *SvrApi) LoadCmd(ctx context.Context, in *fsapi.LoadReq) (*fsapi.ResHeader, error) {
-
-	var ResHeader fsapi.ResHeader
-	Devid, err := strconv.Atoi(in.ReqHeader.DevId)
-	if c.ScaleProcessMap[Devid] == nil {
-		c.ScaleProcessMap[Devid] = &ScaleProcess{
-			CurrentWeight: 0,
-			FedWeight:     0,
-			DevId:         Devid,
-		}
-	}
-	c.ScaleProcessMap[Devid].LoadCmd(in, &ResHeader)
-	//当前重量
-	return &ResHeader, err
-}
-func (c *SvrApi) ChoosePigsty(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsapi.CurrentFedRes, error) {
-	var CurrentFedRes fsapi.CurrentFedRes
-
-	Devid, err := strconv.Atoi(in.ReqHeader.DevId)
-	if c.ScaleProcessMap[Devid] == nil {
-		c.ScaleProcessMap[Devid] = &ScaleProcess{
-			CurrentWeight: 0,
-			FedWeight:     0,
-			DevId:         Devid,
-		}
-	}
-	c.ScaleProcessMap[Devid].ChoosePigsty(in, &CurrentFedRes)
-
-	return &CurrentFedRes, err
-}*/
 func (c *SvrApi) UploadRawInfo(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsapi.ResHeader, error) {
 	fmt.Println("upload raw info func is called ")
 	var CurrentFedRes fsapi.ResHeader
@@ -193,4 +166,26 @@ func (c *SvrApi) GetLast(ctx context.Context, in *fsapi.UploadDevDateReq) (*fsap
 	//
 
 	return &CurrentFedRes, nil
+}
+
+func (c *SvrApi) GetHistoryFeedLog(in *fsapi.HistoryReq, res fsapi.FsPad_GetHistoryFeedLogServer) error {
+	var famers Farmers
+	var farmer fspub.Farmer
+
+	famers.GetFarmerByDev(in.ReqHeader.DevId, &farmer)
+	farm_id, err := strconv.Atoi(farmer.Id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	pPigstyInfoList, err := GetPigstysHistoryBySty(farm_id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	for _, v := range *pPigstyInfoList {
+		res.Send(v)
+	}
+
+	return err
 }

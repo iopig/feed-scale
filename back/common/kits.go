@@ -2,8 +2,10 @@ package common
 
 import (
 	"errors"
+	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //单位映射表
@@ -81,4 +83,23 @@ func WeightToNumber(weightStr string) (int, error) {
 
 		return 0, nil
 	}
+}
+
+func GetDayInterval(firstTime, secondTime int64) int64 {
+
+	//
+	timeTemplate3 := "2006-01-02" //其他类型
+	firstDay := time.Unix(firstTime, 0).Format(timeTemplate3)
+
+	secondDay := time.Unix(secondTime, 0).Format(timeTemplate3)
+
+	firststamp, _ := time.ParseInLocation(timeTemplate3, firstDay, time.Local) //使用parseInLocation将字符串格式化返回本地时区时间
+	secondstamp, _ := time.ParseInLocation(timeTemplate3, secondDay, time.Local)
+	log.Println(firststamp.Unix()) //输出：1546926630
+
+	//firststamp.Sub(secondstamp).Hours()
+	log.Println(secondstamp.Unix()) //输出：1546926630
+	dayinterval := (secondstamp.Unix() - firststamp.Unix()) / (3600 * 24)
+	log.Println(dayinterval) //输出：1546926630
+	return dayinterval
 }
