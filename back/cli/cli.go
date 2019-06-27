@@ -15,9 +15,10 @@ import (
 
 func PadLogin() (err error) {
 
-	cli, err := grpc.Dial("127.0.0.1:50051", grpc.WithInsecure())
+	cli, err := grpc.Dial("117.139.13.149:50051", grpc.WithInsecure())
 
 	if err != nil {
+
 		fmt.Println(err.Error())
 	}
 
@@ -26,7 +27,7 @@ func PadLogin() (err error) {
 	farmerInfo, err := ccCli.PadLogin(context.Background(), &fsapi.DevInfoReq{
 		ReqHeader: &fsapi.ReqHeader{
 			Version: 1,
-			DevId:   "1",
+			DevId:   "3746a505152c60aa",
 			Ts:      uint64(time.Now().Unix()),
 		},
 	})
@@ -199,6 +200,7 @@ func main() {
 	fmt.Println("time yes day :", time.Unix(1555689619, 0).Day())
 	interv := (time.Now().Unix() - 1555689619) / 86400
 	fmt.Println("time:", interv)
-	UdpPadLogin()
+	//UdpPadLogin()
+	PadLogin()
 	//UploadRawInfoUdp()
 }

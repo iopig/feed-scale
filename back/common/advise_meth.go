@@ -18,18 +18,18 @@ func (ra *RecommendateAlgm) GatAdviseWeight(pigNum int, pigAge int) uint32 {
 		ra.InitDays()
 		if len(ra.RecomdByDays) == 0 {
 			fmt.Println("NOT HAVA RECOMMENDATE WEIGHT!")
-			return uint32(pigNum) * AdviseNum / 3
+			return uint32(pigNum) * AdviseNum
 		}
 	}
 	if v, ok := ra.RecomdByDays[pigAge]; ok {
 		AdviseNum = v
 
 	} else {
-		AdviseNum = 3800
+		AdviseNum = 12000
 		fmt.Println("AdviseNum not get,set default :", AdviseNum)
 	}
 
-	return uint32(pigNum) * AdviseNum / 3
+	return uint32(pigNum) * AdviseNum
 }
 
 //TODO ,推荐的参考数据应该存放在redis里。
